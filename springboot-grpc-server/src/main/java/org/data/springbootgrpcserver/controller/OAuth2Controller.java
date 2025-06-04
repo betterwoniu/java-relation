@@ -4,6 +4,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Collections;
@@ -27,5 +28,19 @@ public class OAuth2Controller {
     @GetMapping("/login")
     public String login() {
         return "login";  // 返回登录页面模板
+    }
+
+    @GetMapping("/userinfo")
+    public String userinfo(@AuthenticationPrincipal OAuth2User principal){
+
+        System.out.println(principal);
+        return "user";
+    }
+
+    @GetMapping("/github/login/oauth2/code")
+    public String githubLoginback(){
+
+        System.out.println("github 回调路径");
+        return "user";
     }
 }

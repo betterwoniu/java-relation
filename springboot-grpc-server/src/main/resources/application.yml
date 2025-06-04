@@ -2,14 +2,14 @@ spring:
   application:
     name: springboot-grpc-server
 
-  security:
-    oauth2:
-      client:
-        registration:
-          github:
-            client-id: Ov23liS4x1Q75O4lXDwq
-            client-secret: 3685b91e28ad786ceecdc62c55acf7f168495940
-            scope: user:email,read:user
+#  security:
+#    oauth2:
+#      client:
+#        registration:
+#          github:
+#            client-id: Ov23liS4x1Q75O4lXDwq
+#            client-secret: 857f64a782c81a6ef48a83dca287589a06d48e9c
+#            scope: user:email,read:user
 
   grpc:
     server:
