@@ -15,14 +15,6 @@ public class SpringbootGrpcServerApplication {
 
         SpringApplication.run(SpringbootGrpcServerApplication.class, args);
 
-
-//        ServerBuilder serverBuilder = ServerBuilder.forPort(9090);
-//
-//        serverBuilder.addService(new UserEntityGrpcServiceImpl());
-//
-//        Server server = serverBuilder.build();
-//        server.start();
-//        server.awaitTermination();
     }
 
 }

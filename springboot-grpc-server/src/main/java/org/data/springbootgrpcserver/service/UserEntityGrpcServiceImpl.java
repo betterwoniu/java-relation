@@ -14,7 +14,7 @@ public class UserEntityGrpcServiceImpl extends UserEntityServiceGrpc.UserEntityS
     @Override
     public void getUserInfo(UserRequest request, StreamObserver<UserReply> responseObserver) {
         System.out.println("getUserInfo" + request.toString());
-        UserReply reply = UserReply.newBuilder().setId("123")
+        UserReply reply = UserReply.newBuilder().setId("1")
                                                 .setName("vva")
                                                 .setCreateTime("2023-03-03")
                                                 .build();

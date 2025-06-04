@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "cn.com.wanfangdata.ads";
+option java_outer_classname = "AigcDetectorServiceProto";
+
+package aigcdetectorservice;
+import "google/protobuf/empty.proto";
+
+service DetectorService {
+  /* 检测 */
+  rpc Detect (DetectRequest) returns (DetectReply) {}
+
+  // 送检，消息队列异步版本
+  // 检测结果在s3，bucket:researchintegrity，key:aigcdetector/{id}_checkresult
+  rpc DetectCommand (DetectCommandRequest) returns (DetectCommandResponse) {} // 服务端生成id
+  rpc ReDetect(ReDetectRequest) returns (google.protobuf.Empty) {}
+  rpc GetDetectionStatus(GetDetectionStatusRequest) returns (GetDetectionStatusResponse) {}
+  rpc GetDetectionListStatus(DetectListRequest) returns(DetectListResponse){}
+}
+message DetectListRequest{
+  repeated string ids = 1; //id集合
+}
+
+message DetectListItem{
+  DetectionStatus status = 1; // 检测状态
+  float score = 2;            //得分
+  int32 ai_words_cnt = 3;     //ai生成文字字符
+  float ai_percent = 4;       //ai生成文本占比
+  int32 significantly_similar_cnt = 5; //显著相似字符数
+  int32 generally_similar_cnt = 6;     //一般相似字符数
+  int32 untagging_similar_cnt = 7;    //未标记相似字符数
+  string check_id = 8;  //检测id
+  string finish_time = 9; //完成时间
+}
+message DetectListResponse{
+  repeated DetectListItem items = 1;
+}
+
+
+message DetectRequest {
+  string text = 1; // 文本
+  string check_id = 2; //检测id
+}
+
+message DetectReply {
+  bool success = 1;   //是否成功
+  string message = 2;//错误消息
+  float score = 3; //相似比
+}
+
+enum SourceIdentification{
+  PRODUCT = 0;      //产品
+  DISTRIBUTORS = 1;//渠道商
+}
+
+message DetectCommandRequest {
+  string text = 1; // 文本
+
+  SourceIdentification source_type = 2; //来源类型、产品还是渠道商
+
+  string source_name = 3;  //来源名称,具体的产品名称或者渠道商名称
+
+  bool  third_part_payment = 4; //是否使用第三方支付,一般来讲只有自己的产品才会有
+
+
+}
+
+message DetectCommandResponse {
+  string id = 1; // 检测ID，UUID
+}
+
+message ReDetectRequest {
+  string id = 1; // 检测ID，UUID
+}
+
+message GetDetectionStatusRequest {
+  string id = 1; // 检测ID，UUID
+}
+
+// 检测状态
+enum DetectionStatus {
+  IN_PROGRESS = 0; // 进行中
+  COMPLETED = 1; // 完成
+}
+
+message GetDetectionStatusResponse {
+  DetectionStatus status = 1; // 检测状态
+  float score = 2;
+}

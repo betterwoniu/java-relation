@@ -1,11 +1,19 @@
 spring:
   application:
     name: springboot-grpc-server
+
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: Ov23liS4x1Q75O4lXDwq
+            client-secret: 3685b91e28ad786ceecdc62c55acf7f168495940
+            scope: user:email,read:user
+
   grpc:
     server:
       port: 9090
-
-
 server:
   port: 8089
 

@@ -23,7 +23,8 @@ public class UserServiceImpl implements UserService {
 //        ManagedChannel  channel = ManagedChannelBuilder.forAddress("0.0.0.0", 9090).usePlaintext().build();
         UserEntityServiceGrpc.UserEntityServiceBlockingStub stub = UserEntityServiceGrpc.newBlockingStub(channel);
         UserRequest request = UserRequest.newBuilder().setId(id).build();
+        UserReply userReply = stub.getUserInfo(request);
 
-        return stub.getUserInfo(request).getName();
+        return userReply.toString();
     }
 }
