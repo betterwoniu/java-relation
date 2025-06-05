@@ -1,11 +1,14 @@
 package org.data.springbootgrpcserver.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.Map;
@@ -13,10 +16,9 @@ import java.util.Map;
 @Controller
 public class OAuth2Controller {
 
-    @GetMapping("/")
-    public String home() {
-        return "index";  // 返回主页模板
-    }
+
+    SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+
 
     @GetMapping("/user")
     @ResponseBody
@@ -31,16 +33,32 @@ public class OAuth2Controller {
     }
 
     @GetMapping("/userinfo")
-    public String userinfo(@AuthenticationPrincipal OAuth2User principal){
+    public String userinfo(@AuthenticationPrincipal OAuth2User principal ,HttpServletRequest request){
 
         System.out.println(principal);
         return "user";
     }
 
-    @GetMapping("/github/login/oauth2/code")
-    public String githubLoginback(){
+    @RequestMapping(value = "/login/oauth2",method = RequestMethod.GET)
+    public String oauth2Login(){
 
-        System.out.println("github 回调路径");
-        return "user";
+        return "oauth2-login";
     }
-}
+
+    @GetMapping("/profile")
+    @ResponseBody
+    public String profile(@AuthenticationPrincipal OAuth2User user) {
+        String name = user.getAttribute("name"); // 从user-info端点获取
+        String email = user.getAttribute("email");
+        return "Hello, " + name + " (" + email + ")";
+    }
+
+
+
+    @GetMapping("/logout")
+    public String performLogout(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
+        this.logoutHandler.logout(request, response, authentication);
+        return "redirect:/";
+    }
+
+    }
