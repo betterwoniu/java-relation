@@ -1,34 +1,54 @@
 package org.data.springbootgrpcserver.config;
 
+import jakarta.servlet.Filter;
 import org.data.springbootgrpcserver.service.CustomOAuth2UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.header.HeaderWriterFilter;
+import org.springframework.web.client.RestClient;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 @Configuration
 @EnableWebSecurity
@@ -36,8 +56,11 @@ public class SecurityConfig {
 
     @Autowired
     private ClientRegistrationRepository clientRegistrationRepository;
+
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, CustomOAuth2UserService customOAuth2UserService) throws Exception {
+
         httpSecurity
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/login","/login/**", "/error**","/login/oauth2/code/**","/logout").permitAll()
@@ -48,18 +71,31 @@ public class SecurityConfig {
                         .defaultSuccessUrl("/user", true)
                         .loginPage("/login/oauth2")
                         .authorizationEndpoint(authorization -> authorization
+                                .authorizationRequestResolver(authorizationRequestResolver(this.clientRegistrationRepository) )
                                 .baseUri("/oauth2/authorization")  // 设置客户端发起OAuth2.0授权的的基础路径 GET /oauth2/authorization/github、GET /oauth2/authorization/google
+
                         )
                 )
-                .oauth2Client(Customizer.withDefaults())
+                .oauth2Client(
+                        oauth2Client -> oauth2Client
+                                .authorizationCodeGrant(codeGrant -> codeGrant
+                                        .accessTokenResponseClient(this.accessTokenResponseClient())
+                                )
+                )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .permitAll()
                         .logoutSuccessHandler(oidcLogoutSuccessHandler())
                 )
+                .addFilterBefore(new TenantFilter(), HeaderWriterFilter.class)  // 添加filter
         ;
+        SecurityFilterChain  securityFilterChain = httpSecurity.build();
+        System.out.println("加载了"+ securityFilterChain.getFilters().size()+"个 Filter" );
+        for (Filter filter: securityFilterChain.getFilters()) {
+            System.out.println(filter);
+        }
 
-        return httpSecurity.build();
+        return securityFilterChain;
     }
 
 
@@ -142,4 +178,61 @@ public class SecurityConfig {
         return oidcLogoutSuccessHandler;
 
     }
+
+
+    /**
+     * 自定义授权请求
+     * @param clientRegistrationRepository
+     * @return
+     */
+    private OAuth2AuthorizationRequestResolver authorizationRequestResolver(
+            ClientRegistrationRepository clientRegistrationRepository) {
+
+        DefaultOAuth2AuthorizationRequestResolver authorizationRequestResolver =
+                new DefaultOAuth2AuthorizationRequestResolver(
+                        clientRegistrationRepository, "/oauth2/authorization");
+        authorizationRequestResolver.setAuthorizationRequestCustomizer(
+                authorizationRequestCustomizer());
+
+        return  authorizationRequestResolver;
+    }
+
+    private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer() {
+        return customizer -> customizer
+                .additionalParameters(params -> params.put("prompt", "consent"));
+    }
+
+
+    /**
+     * 自定义响应
+     * @return
+     */
+    @Bean
+    public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient() {
+
+        OAuth2AccessTokenResponseHttpMessageConverter accessTokenResponseMessageConverter =
+                new OAuth2AccessTokenResponseHttpMessageConverter();
+        accessTokenResponseMessageConverter.setAccessTokenResponseConverter(parameters -> {
+            // ...
+            return OAuth2AccessTokenResponse.withToken("custom-token")
+                    // ...
+                    .build();
+        });
+
+        RestClientAuthorizationCodeTokenResponseClient accessTokenResponseClient =
+                new RestClientAuthorizationCodeTokenResponseClient();
+        accessTokenResponseClient.addHeadersConverter(grantRequest -> {
+            ClientRegistration clientRegistration = grantRequest.getClientRegistration();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(HttpHeaders.USER_AGENT, "my-user-agent");
+            return headers;
+        });
+
+        return accessTokenResponseClient;
+    }
+
+
+
 }
+
+
