@@ -37,6 +37,10 @@ spring:
       port: 9090
 server:
   port: 8089
+logging:
+  level:
+    org.springframework.security: debug
+    org.springframework.web.client: debug
 
 
 

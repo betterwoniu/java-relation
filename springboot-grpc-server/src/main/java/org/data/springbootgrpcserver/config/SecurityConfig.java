@@ -1,7 +1,9 @@
 package org.data.springbootgrpcserver.config;
 
 import jakarta.servlet.Filter;
-import org.data.springbootgrpcserver.service.CustomOAuth2UserService;
+//import org.data.springbootgrpcserver.service.CustomOAuth2UserService;
+import org.data.springbootgrpcserver.service.CustomSecurityContextRepository;
+import org.data.springbootgrpcserver.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +15,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
@@ -38,6 +43,7 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
@@ -50,6 +56,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -57,9 +65,12 @@ public class SecurityConfig {
     @Autowired
     private ClientRegistrationRepository clientRegistrationRepository;
 
+    @Autowired
+    private CustomSecurityContextRepository customSecurityContextRepository;
+
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, CustomOAuth2UserService customOAuth2UserService) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity
                 .authorizeHttpRequests(authorize -> authorize
@@ -88,6 +99,14 @@ public class SecurityConfig {
                         .logoutSuccessHandler(oidcLogoutSuccessHandler())
                 )
                 .addFilterBefore(new TenantFilter(), HeaderWriterFilter.class)  // 添加filter
+                .formLogin(form -> form
+                        .loginPage("/login/userAndPass")
+                        .defaultSuccessUrl("/user",true)
+                        )
+
+                .securityContext(context-> context.securityContextRepository(customSecurityContextRepository))
+
+
         ;
         SecurityFilterChain  securityFilterChain = httpSecurity.build();
         System.out.println("加载了"+ securityFilterChain.getFilters().size()+"个 Filter" );
@@ -232,6 +251,12 @@ public class SecurityConfig {
     }
 
 
+
+
+    @Bean
+    CustomUserDetailsService customUserDetailsService() {
+        return new CustomUserDetailsService();
+    }
 
 }
 

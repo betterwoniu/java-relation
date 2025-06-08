@@ -2,7 +2,7 @@ package org.data.springbootgrpcserver.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.data.springbootgrpcserver.service.CustomOAuth2UserService;
+//import org.data.springbootgrpcserver.service.CustomOAuth2UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.CachingUserDetailsService;
 import org.springframework.security.core.Authentication;
@@ -30,39 +30,31 @@ public class OAuth2Controller {
 
     SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
 
-    @Autowired
-    private CustomOAuth2UserService customOAuth2UserService;
+//    @Autowired
+//    private CustomOAuth2UserService customOAuth2UserService;
 
+    @GetMapping("/login/userAndPass")
+    public String userAndPassword() {
+        return "userAndPass";
+    }
 
     @GetMapping("/user")
     @ResponseBody
     public Map<String, Object> user() {
-
         // 返回用户信息
-        return Collections.singletonMap("name","zz");
+        return Collections.singletonMap("name", "zz");
     }
 
     @GetMapping("/userinfo")
-    public String userinfo(Authentication authentication ,HttpServletRequest request){
-
-        getUserInfo();
+    public String userinfo(Authentication authentication, HttpServletRequest request) {
         return "user";
     }
 
-    @RequestMapping(value = "/login/oauth2",method = RequestMethod.GET)
-    public String oauth2Login(){
+    @RequestMapping(value = "/login/oauth2", method = RequestMethod.GET)
+    public String oauth2Login() {
 
         return "oauth2-login";
     }
-
-    @GetMapping("/profile")
-    @ResponseBody
-    public String profile(@AuthenticationPrincipal OAuth2User user) {
-        String name = user.getAttribute("name"); // 从user-info端点获取
-        String email = user.getAttribute("email");
-        return "Hello, " + name + " (" + email + ")";
-    }
-
 
 
     @GetMapping("/logout")
@@ -71,12 +63,4 @@ public class OAuth2Controller {
         return "redirect:/";
     }
 
-
-    private String getUserInfo(){
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println( authentication.getDetails());
-
-        return "getUserInfo";
-    }
-    }
+}
