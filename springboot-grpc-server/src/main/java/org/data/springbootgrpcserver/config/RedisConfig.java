@@ -9,10 +9,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.springframework.security.core.context.SecurityContext;
+
 
 @Configuration
 public class RedisConfig {
@@ -30,7 +29,7 @@ public class RedisConfig {
 //        template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
 
         //Json序列化配置
-        Jackson2JsonRedisSerializer<Object> Jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<Object>(Object.class);
+        Jackson2JsonRedisSerializer<Object> Jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
         ObjectMapper mp = new ObjectMapper();
         mp.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         mp.activateDefaultTyping(mp.getPolymorphicTypeValidator());

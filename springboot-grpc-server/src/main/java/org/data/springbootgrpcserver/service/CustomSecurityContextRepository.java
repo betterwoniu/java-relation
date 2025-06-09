@@ -1,11 +1,15 @@
 package org.data.springbootgrpcserver.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Component;
@@ -21,9 +25,12 @@ public class CustomSecurityContextRepository implements SecurityContextRepositor
 
     @Autowired
     private RedisService redisService;
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Value("${spring.cache.redis.time-to-live}")
     private long expirationTime;
+    private final ObjectMapper objectMapper = new ObjectMapper().registerModules(SecurityJackson2Modules.getModules(getClass().getClassLoader()));
 
     @Override
     public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
@@ -35,14 +42,17 @@ public class CustomSecurityContextRepository implements SecurityContextRepositor
 
         }
         String redisKey = "security:context:" + sessionId;
-        boolean isExist = redisService.hasKey(redisKey);
-        if (isExist) {
-            SecurityContext context = (SecurityContext) redisService.get(redisKey);
-            return  context ;
-        }else  {
+        Object context = redisService.get(redisKey);
+//        SecurityContextImpl context = (SecurityContextImpl) redisTemplate.opsForValue().get(redisKey);
+//        Object context = redisTemplate.opsForValue().get(redisKey);
+        if (context == null) {
             return SecurityContextHolder.createEmptyContext();
         }
-
+        try {
+            return objectMapper.readValue((String) context, SecurityContext.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -52,15 +62,21 @@ public class CustomSecurityContextRepository implements SecurityContextRepositor
         /**
          * 存储会话管理，通过sessionId
          */
-        System.out.println("saveContext  "+request.getSession().getId());
         String sessionId = request.getSession().getId();
-       if(sessionId == null || context.getAuthentication() == null) return;
+        if(sessionId == null || context.getAuthentication() == null) return;
 
         String redisKey = "security:context:" + sessionId;
 
-        System.out.println(redisKey+"======>"+context);
+        try {
+            String contextJson = objectMapper.writeValueAsString(context);
+//            redisTemplate.opsForValue().set(redisKey,contextJson, expirationTime, TimeUnit.SECONDS);
+            redisService.setWithExpire(redisKey, contextJson,expirationTime, TimeUnit.SECONDS);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
 
-        redisService.setWithExpire(redisKey,context, expirationTime, TimeUnit.SECONDS);
+
+//        redisTemplate.opsForValue().set(redisKey, securityContextImpl, expirationTime, TimeUnit.SECONDS);
 
     }
 
