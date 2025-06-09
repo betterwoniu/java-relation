@@ -104,7 +104,7 @@ public class SecurityConfig {
                         .defaultSuccessUrl("/user",true)
                         )
 
-                .securityContext(context-> context.securityContextRepository(customSecurityContextRepository))
+                .securityContext(context-> context.securityContextRepository(customSecurityContextRepository))  // 自定义会话管理
 
 
         ;

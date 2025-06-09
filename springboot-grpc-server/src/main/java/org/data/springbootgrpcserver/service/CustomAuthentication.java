@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 import java.util.List;
 
+
 public class CustomAuthentication implements Authentication {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
