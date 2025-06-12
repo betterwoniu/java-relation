@@ -20,6 +20,8 @@ import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizati
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -30,6 +32,7 @@ import org.springframework.security.oauth2.core.http.converter.OAuth2AccessToken
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
@@ -63,7 +66,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-//                        .userInfoEndpoint(userInfo->userInfo.userService(customOAuth2UserService))
+                        .userInfoEndpoint(userInfo->userInfo.userService(this.oauth2UserService()))
                         .defaultSuccessUrl("/user", true)
                         .loginPage("/login/oauth2")
                         .authorizationEndpoint(authorization -> authorization
@@ -74,9 +77,12 @@ public class SecurityConfig {
                 )
                 .oauth2Client(
                         oauth2Client -> oauth2Client
+
                                 .authorizationCodeGrant(codeGrant -> codeGrant
                                         .accessTokenResponseClient(this.accessTokenResponseClient())
                                 )
+
+
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
@@ -246,10 +252,9 @@ public class SecurityConfig {
         return new CustomUserDetailsService();
     }
 
-//    @Bean
-//    RememberMeServices rememberMeServices(UserDetailsService userDetailsService) {
-//        return new CustomRememberMeServices(userDetailsService);
-//    }
+    private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {
+		return new CustomUserDetailsService();
+    }
 
     @Bean
     public BCryptPasswordEncoder BCryptPasswordEncoder(){

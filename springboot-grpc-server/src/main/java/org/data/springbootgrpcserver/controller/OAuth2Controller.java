@@ -50,12 +50,12 @@ public class OAuth2Controller {
 
     @GetMapping("/authenticationuser")
     @ResponseBody
-    public String authenticationUser(@CurrentSecurityContext SecurityContext context) {
+    public Object authenticationUser(@CurrentSecurityContext SecurityContext context) {
 
        Object o = context.getAuthentication().getPrincipal();
 
 
-        return context.getAuthentication().getPrincipal().toString();
+        return context.getAuthentication().getPrincipal();
     }
 
     @GetMapping("/user-details")
