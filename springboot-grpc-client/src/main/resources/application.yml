@@ -1,7 +1,17 @@
 spring:
   application:
     name: springboot-grpc-client
-
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:/Volumes/----Y/java_space/java-relation/springboot-grpc-client/src/main/resources/springDb.db
+    username:
+    password:
+  jpa:
+    database-platform: org.sqlite.hibernate.dialect.SQLiteDialect
+  logging:
+    level:
+      org.springframework.security: debug
+      org.springframework.web.client: debug
 server:
   port: 8088
 grpc:
@@ -17,3 +27,8 @@ grpc:
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiationType: plaintext
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
