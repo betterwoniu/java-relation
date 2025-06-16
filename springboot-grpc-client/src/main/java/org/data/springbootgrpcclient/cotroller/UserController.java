@@ -31,4 +31,9 @@ public class UserController {
    public User getUserByName(@RequestParam String name){
         return userService.getUserByName(name);
    }
+//
+//   @GetMapping("/logout")
+//   public String logout(){
+//        return "logout";
+//   }
 }

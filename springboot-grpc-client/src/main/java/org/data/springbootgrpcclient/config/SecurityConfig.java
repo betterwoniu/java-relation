@@ -7,6 +7,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 public class SecurityConfig {
@@ -14,6 +18,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
+        CookieClearingLogoutHandler cookieClearingLogoutHandler = new CookieClearingLogoutHandler("JSESSIONID", "remember-me");
         httpSecurity
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers( "/login","/login/**", "/error**","/login/oauth2/code/**").permitAll()
@@ -24,15 +29,18 @@ public class SecurityConfig {
                                 .defaultSuccessUrl("/index",true)
 
                 )
-                .logout((logout) -> logout
-                        .logoutUrl("/logout") // 自定义退出URL
-                        .logoutSuccessUrl("/login?logout") // 退出成功后跳转
-                        .invalidateHttpSession(true) // 使会话无效
-                        .deleteCookies("JSESSIONID") // 删除指定Cookie
+                .logout(logout -> logout
+                      .logoutRequestMatcher(request ->
+                                        "GET".equals(request.getMethod()) &&
+                                                "/logout".equals(request.getServletPath())
+                                )
+                        .logoutSuccessUrl("/login")
+                        .addLogoutHandler(cookieClearingLogoutHandler)
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
                         .permitAll()
-
                 )
-
+                .httpBasic(withDefaults());
         ;
 
         return httpSecurity.build();
