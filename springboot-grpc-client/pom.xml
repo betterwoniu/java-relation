@@ -31,7 +31,7 @@
         <grpc.version>1.72.0</grpc.version>
         <protobuf-java.version>4.30.2</protobuf-java.version>
         <spring-grpc.version>0.8.0</spring-grpc.version>
-        <os.detected.classifier>osx-aarch_64</os.detected.classifier>
+<!--        <os.detected.classifier>osx-aarch_64</os.detected.classifier>-->
 
     </properties>
     <dependencies>
