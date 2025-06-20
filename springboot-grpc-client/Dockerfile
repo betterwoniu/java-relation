@@ -22,4 +22,4 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 COPY --from=build /app/target/*.jar springboot-grpc-clent.jar
 EXPOSE 8088
-CMD ["java", "-jar", "app.jar"]
+CMD ["java", "-jar", "springboot-grpc-clent.jar"]

@@ -3,7 +3,7 @@ spring:
     name: springboot-grpc-client
   datasource:
     driver-class-name: org.sqlite.JDBC
-    url: jdbc:sqlite:/Volumes/----Y/java_space/java-relation/springboot-grpc-client/src/main/resources/springDb.db
+    url: jdbc:sqlite::resource:springDb.db
     username:
     password:
   jpa:
