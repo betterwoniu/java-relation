@@ -1,0 +1,19 @@
+server:
+  port: 8091
+
+spring:
+  application:
+    name: grpc-server
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite::resource:springDb.db
+    username:
+    password:
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**.xml
+
+grpc:
+  server:
+    port: 9091 # gRPC 服务端口
+    enable-reflection: true # 启用反射服务（测试用）
