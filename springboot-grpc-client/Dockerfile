@@ -10,8 +10,8 @@ COPY .mvn .mvn
 COPY setting.xml .
 
 # 清理并下载依赖（利用缓存）
-RUN rm -rf /root/.m2/repository/* && \
-    ./mvnw dependency:go-offline -B -s setting.xml
+RUN  rm -rf /root/.m2/repository/* && \
+    ./mvnw dependency:go-offline -B -U -s setting.xml
 
 # 复制源代码并构建
 COPY src ./src
