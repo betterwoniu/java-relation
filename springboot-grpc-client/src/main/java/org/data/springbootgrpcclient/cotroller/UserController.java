@@ -2,6 +2,7 @@ package org.data.springbootgrpcclient.cotroller;
 
 import lombok.AllArgsConstructor;
 import org.data.springbootgrpcclient.entity.User;
+import org.data.springbootgrpcclient.service.UserGrpcClinentService;
 import org.data.springbootgrpcclient.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,8 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserGrpcClinentService userGrpcClinentService;
 
     @GetMapping("/info")
    public String getUser(){
@@ -31,9 +34,9 @@ public class UserController {
    public User getUserByName(@RequestParam String name){
         return userService.getUserByName(name);
    }
-//
-//   @GetMapping("/logout")
-//   public String logout(){
-//        return "logout";
-//   }
+
+   @GetMapping("/hellogroc")
+   public String logout(){
+        return userGrpcClinentService.helloTestGrpc();
+   }
 }
