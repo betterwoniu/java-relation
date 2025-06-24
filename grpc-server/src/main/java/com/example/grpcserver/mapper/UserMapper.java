@@ -7,7 +7,5 @@ import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
-
     User getUserByXMLId(@Param("id") String id);
-
 }

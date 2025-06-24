@@ -6,5 +6,11 @@
 <body>
 <h1>Welcome!</h1>
 <a th:href="@{/logout}">退出登陆</a>
+
+<form th:action="@{/file/upload}" method="post" enctype="multipart/form-data">
+
+    <input type="file" name="file" id="">
+    <button type="submit">上传</button>
+</form>
 </body>
 </html>

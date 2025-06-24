@@ -17,3 +17,9 @@ grpc:
   server:
     port: 9091 # gRPC 服务端口
     enable-reflection: true # 启用反射服务（测试用）
+
+minio:
+  serviceUrl: http://127.0.0.1:9005
+  accessKey: root
+  secretAccessKey: root@123
+  bucketName: kycx

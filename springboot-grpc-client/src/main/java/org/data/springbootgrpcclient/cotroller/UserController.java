@@ -36,7 +36,12 @@ public class UserController {
    }
 
    @GetMapping("/hellogroc")
-   public String logout(){
+   public String hellogroc(){
         return userGrpcClinentService.helloTestGrpc();
+   }
+
+   @GetMapping("/usergrpc")
+   public User usergrpc(@RequestParam String id){
+        return userGrpcClinentService.getGrpcUser(id);
    }
 }
