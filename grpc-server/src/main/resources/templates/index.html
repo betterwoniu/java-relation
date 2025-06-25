@@ -1,16 +1,55 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
-    <title>Home</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自定义登录</title>
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .oauth-provider {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-<h1>Welcome!</h1>
-<a th:href="@{/logout}">退出登陆</a>
+<div class="login-container">
+    <h2>请选择登录方式</h2>
 
-<form th:action="@{/file/upload}" method="post" enctype="multipart/form-data">
+    <!-- GitHub 登录 -->
+    <div class="oauth-provider">
+        <a href="/oauth2/authorization/github">
+            <button>使用 GitHub 登录</button>
+        </a>
+    </div>
 
-    <input type="file" name="file" id="">
-    <button type="submit">上传</button>
-</form>
+    <!-- Google 登录 -->
+    <div class="oauth-provider">
+        <a href="/oauth2/authorization/google">
+            <button>使用 Google 登录</button>
+        </a>
+    </div>
+
+    <div class="oauth-provider">
+        <a href="/oauth2/authorization/gitee">
+            <button>使用 Gitee 登录</button>
+        </a>
+    </div>
+
+    <div class="oauth-provider">
+        <a href="/login/userAndPass">
+            <button>使用 用户名密码 登录</button>
+        </a>
+    </div>
+</div>
 </body>
 </html>

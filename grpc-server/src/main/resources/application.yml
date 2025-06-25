@@ -9,6 +9,30 @@ spring:
     url: jdbc:sqlite::resource:springDb.db
     username:
     password:
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: Ov23liS4x1Q75O4lXDwq
+            client-secret: 857f64a782c81a6ef48a83dca287589a06d48e9c
+            scope: user,repo
+
+          gitee:
+            client-id: 8e242dc424faf29b3afcc09eec2afba180ed2f22979af350aad0f986e1aa731b
+            client-secret: a40feb5de2ebbd63c3491c2d7cde02a0a28ce0a07b388636ef65cb956b0953bb
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: user_info
+
+        provider:
+          gitee:
+            authorization-uri: https://gitee.com/oauth/authorize
+            token-uri: https://gitee.com/oauth/token
+            user-info-uri: https://gitee.com/api/v5/user
+            user-name-attribute: name  # 从用户信息中提取用户名的字段
+
+
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/**.xml
