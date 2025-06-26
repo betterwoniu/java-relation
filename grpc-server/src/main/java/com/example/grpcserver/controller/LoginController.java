@@ -9,6 +9,8 @@ import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.UploadObjectArgs;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Controller;
@@ -21,6 +23,7 @@ import java.nio.file.Files;
 
 
 @Controller
+@Api(value = "", tags = "登录")
 public class LoginController {
 
     @Autowired
@@ -35,40 +38,30 @@ public class LoginController {
     private MinIoConfigProperties minioClientConfig;
 
 
+    @ApiOperation(value = "账号密码登录")
     @GetMapping("/login/userAndPass")
     public String login(){
         return "login";
     }
 
+    @ApiOperation(value = "index")
     @GetMapping({"/","/index"})
     public String index()  {
         return "index";
     }
 
+    @ApiOperation(value = "home")
     @GetMapping("/home")
     public String home(){
         return "home";
     }
 
 
+    @ApiOperation(value = "userbyId")
 
     @RequestMapping(method = RequestMethod.GET,value = "/userbyId")
     @ResponseBody
     public User getUserById(@RequestParam("id") String id) {
         return userService.getUserByXMLId(id);
-    }
-
-
-    public MultipartFile convertToMultipartFile(File file) throws IOException {
-        String fileName = file.getName();
-        String contentType = Files.probeContentType(file.toPath());
-        byte[] content = Files.readAllBytes(file.toPath());
-
-        return new MockMultipartFile(
-                fileName,          // 文件名
-                fileName,          // 原始文件名
-                contentType,       // 内容类型
-                content            // 文件内容字节数组
-        );
     }
 }

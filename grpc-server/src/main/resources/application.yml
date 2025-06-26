@@ -31,8 +31,13 @@ spring:
             token-uri: https://gitee.com/oauth/token
             user-info-uri: https://gitee.com/api/v5/user
             user-name-attribute: name  # 从用户信息中提取用户名的字段
-
-
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  servlet:
+    multipart:
+      max-file-size: 1000MB
+      max-request-size: 2000MB
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/**.xml
@@ -47,3 +52,12 @@ minio:
   accessKey: root
   secretAccessKey: root@123
   bucketName: kycx
+springfox:
+  documentation:
+    enabled: true
+    swagger-ui:
+      enabled: true
+logging:
+  level:
+    org.springframework.security: debug
+    org.springframework.web: debug
