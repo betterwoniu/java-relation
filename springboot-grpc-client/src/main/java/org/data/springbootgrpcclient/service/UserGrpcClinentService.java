@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 public class UserGrpcClinentService {
 
 
-    @GrpcClient("userserver")
+    @GrpcClient("localgrpcserver")
     private UserEntityServiceGrpc.UserEntityServiceBlockingStub blockingStub;
 
     public String getUserInfo(String userId) {

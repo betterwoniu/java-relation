@@ -19,7 +19,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String GetUserById(String id) {
-        Channel channel = channelFactory.createChannel("userserver");
+        Channel channel = channelFactory.createChannel("localgrpcserver");
 //        ManagedChannel  channel = ManagedChannelBuilder.forAddress("0.0.0.0", 9090).usePlaintext().build();
         UserEntityServiceGrpc.UserEntityServiceBlockingStub stub = UserEntityServiceGrpc.newBlockingStub(channel);
         UserRequest request = UserRequest.newBuilder().setId(id).build();
