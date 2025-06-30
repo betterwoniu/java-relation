@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.data.grpc.server";
+option java_outer_classname = "UserEntityProto";
+
+service UserEntityService {
+//  rpc SayHello (HelloRequest) returns (HelloReply) {}
+//  rpc SayHelloStream (HelloRequest) returns (stream HelloReply) {}
+//  rpc helloGrpc(HelloRequest) returns(HelloReply);
+
+  rpc GetUserInfo(UserRequest) returns (UserReply){};
+}
+
+message UserRequest {
+  string id = 1;
+}
+
+message UserReply {
+  string id = 1;
+  string name = 2;
+  string role = 3;
+  string createTime = 4;
+}

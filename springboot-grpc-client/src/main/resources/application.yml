@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: springboot-grpc-client
+  grpc:
+    client:
+      userserver:
+        address: static://localhost:9090
+        enableKeepAlive: true
+        keepAliveWithoutCalls: true
+        negotiationType: plaintext
+
+server:
+  port: 8088
+
+
+#logging:
+#  level:
+#    io.grpc: DEBUG
+#    net.devh.grpc: TRACE
+#    org.springframework: DEBUG
