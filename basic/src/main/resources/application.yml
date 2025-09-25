@@ -1,0 +1,23 @@
+server:
+  port: 8088
+  servlet:
+    context-path: /basic/
+  tomcat:
+    uri-encoding: utf-8
+
+
+spring:
+  application:
+    name: basic
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+
+sensitivity:
+  user: wfcxAPI
+  pwd: WuIi!*21
+  url: http://apisafe.sticloud.cn
+  basic: 'c2NpZW50aWZpYy1hZG1pbjpzY2llbnRpZmljLWFkbWluLXB3IyQjJUA'
+  reviewExtent: '3'
